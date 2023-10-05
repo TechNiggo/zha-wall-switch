@@ -1,0 +1,113 @@
+blueprint:
+  name: Hue Wall Switch Module
+  description: 'Blueprint for Home Assistant for the Hue Wall Switch using zigbee2mqtt.'
+  domain: automation
+  
+  input:
+    switch:
+      name: Switch
+      description: Action sensor of Hue Wall Switch to use
+      selector:
+        entity:
+          domain: sensor
+          integration: mqtt
+
+    press_left:
+      name: Press left button 
+      description: Action to run on left button press
+      default: []
+      selector:
+        action: {}
+
+    hold_left:
+      name: Hold left button
+      description: Action to run on holding left button
+      default: []
+      selector:
+        action: {}
+
+    release_left:
+      name: Release left button
+      description: Action to run on releasing left button
+      default: []
+      selector:
+        action: {}
+
+    press_right:
+      name: Press right button
+      description: Action to run on right button press
+      default: []
+      selector:
+        action: {}
+
+    hold_right:
+      name: Hold right button
+      description: Action to run on holding right button
+      default: []
+      selector:
+        action: {}
+
+    release_right:
+      name: Release right button
+      description: Action to run on releasing right button
+      default: []
+      selector:
+        action: {}
+
+#    hold_button_delay:
+#      name: Right Hold button delay
+#      description: Max delay that the automation waits for a right_hold message.
+#        this can be required to prevent the right_press action to be executed before the right_hold message arrives.
+#      default: 800
+#      selector:
+#        number:
+#          min: 100.0
+#          max: 1500.0
+#          unit_of_measurement: milliseconds
+#          mode: box
+#          step: 10.0
+
+mode: single
+max_exceeded: silent
+trigger:
+  - platform: state
+    entity_id: !input switch
+    to:
+      - "left_press"
+      - "left_hold"
+      - "left_hold_release"
+      - "right_press"
+      - "right_hold"
+      - "right_hold_release"
+action:
+- variables:
+    command: "{{ trigger.to_state.attributes.action }}"
+- wait_for_trigger:
+  - platform: state
+    entity_id: !input switch
+    to: "right_hold"
+  timeout: 0.9
+  continue_on_timeout: true
+
+- choose:
+  - conditions:
+    # when button right_hold did not come withing the timeout
+    - condition: template
+      value_template: "{{ wait.trigger == none }}"
+    sequence:
+      - choose:
+        - conditions: '{{ command == ''left_press'' }}'
+          sequence: !input press_left
+        - conditions: '{{ command == ''left_hold'' }}'
+          sequence: !input hold_left
+        - conditions: '{{ command == ''left_hold_release'' }}'
+          sequence: !input release_left
+        - conditions: '{{ command == ''right_press'' }}'
+          sequence: !input press_right
+        - conditions: '{{ command == ''right_hold_release'' }}'
+          sequence: !input release_right
+  # right_hold within timout
+  default: 
+    - choose:
+      - conditions: []
+        sequence: !input hold_right
