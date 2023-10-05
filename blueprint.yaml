@@ -10,7 +10,6 @@ blueprint:
       selector:
         entity:
           domain: sensor
-          integration: mqtt
 
     press_left:
       name: Press left button 
