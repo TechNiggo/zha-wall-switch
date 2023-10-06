@@ -1,6 +1,6 @@
 blueprint:
   name: ZHA - Signify RDM001
-  description: Control anything using Signify RDM001 double rocker type switch (mode 3)
+  description: Control anything using Signify RDM001 double rocker type switch (mode 2)
 
   domain: automation
   input:
