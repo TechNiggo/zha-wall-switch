@@ -59,7 +59,7 @@ action:
         sequence: !input button_left_release
 
       - conditions:
-          - "{{ command == 'left_short' }}"
+          - "{{ command == 'left_press' }}"
         sequence: !input button_left_press
 
   - choose:
@@ -68,5 +68,5 @@ action:
         sequence: !input button_right_release
 
       - conditions:
-          - "{{ command == 'right_short' }}"
+          - "{{ command == 'right_press' }}"
         sequence: !input button_right_press
